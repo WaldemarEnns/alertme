@@ -1,0 +1,180 @@
+swagger: "2.0"
+info:
+  description: "This is the alertme API documentation."
+  version: "1.0.0"
+  title: "alertme REST API"
+  termsOfService: "https://alertme.waldemarenns.de/terms"
+  contact:
+    email: "kontact@alertme.waldemarenns.de"
+  license:
+    name: "MIT"
+    url: "https://opensource.org/licenses/MIT"
+host: "localhost:8080"
+basePath: "/v1"
+tags:
+- name: "alert"
+  description: "Alert instance information"
+  externalDocs:
+    description: "Find out more"
+    url: "https://docs.alertme.waldemarenns.de/alert"
+#- name: "tag"
+#  description: "Tags that contain key-value information about an alert."
+schemes:
+- "https"
+paths:
+  /alert:
+    get:
+      tags:
+      - "alert"
+      summary: "Get alerts with detailed information"
+      description: "Retrieves alerts in a paginated response. Additional filters can be applied."
+      operationId: "getAlerts"
+      security:
+      - alert_auth:
+        - "read:alerts"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "page"
+        in: "query"
+        description: "The requested page of items"
+        required: false
+        default: 1
+        type: "integer"
+      - name: "itemsPerPage"
+        in: "query"
+        description: "The amount of items that should be included in one page result."
+        required: false
+        default: 15
+        type: "integer"
+      responses:
+        200:
+          description: "Success - resources found"
+          schema:
+            type: "object"
+            properties:
+              items:
+                type: "array"
+                description: "The paginated alert resources."
+                items:
+                  $ref: "#/definitions/Alert"
+              pagination:
+                type: "object"
+                description: "Pagination information."
+                properties:
+                  totalItems:
+                    type: "integer"
+                    description: "The total amount of items of the request."
+                  page:
+                    type: "integer"
+                    description: "The current page."
+                  perPage:
+                    type: "integer"
+                    description: "The current amount of items to be displayed per page."
+                  totalPages:
+                    type: "integer"
+                    description: "The total amount of pages for the request."
+        400:
+          description: "Bad request. Please check your passed parameters."
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "integer"
+                description: "The status code of the response."
+                default: 400
+              message:
+                type: "string"
+                description: "An explicit error message."
+                default: "Please check your passed parameters."
+        401:
+          description: "Authentication failed."
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "integer"
+                description: "The status code of the response."
+                default: 401
+              message:
+                type: "string"
+                description: "An explicit error message."
+                default: "Authentication failed. Please check your access token."
+        403:
+          description: "Authorization failed. Permission not granted for this request."
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "integer"
+                description: "The status code of the response."
+                default: 403
+              message:
+                type: "string"
+                description: "An explicit error message."
+                default: "You are not authorized for this request. Please check your permissions."
+        500:
+          description: "Server side error. Please retry the request or check the server status."
+          schema:
+            type: "object"
+            properties:
+              status:
+                type: "integer"
+                description: "The status code of the response."
+                default: 500
+              message:
+                type: "string"
+                description: "An explicit error message."
+                default: "The server encountered an error. Please retry the request or check the server availability."
+securityDefinitions:
+  alert_auth:
+    type: "oauth2"
+    authorizationUrl: "http://localhost:5000/auth/realms/alertme"
+    flow: "implicit"
+    scopes:
+      read:alerts: "permission to read alerts"
+definitions:
+  Alert:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "Unique ID of an alert."
+      name:
+        type: "string"
+        description: "The name of the alert."
+      description:
+        type: "string"
+        description: "A verbose description of the alert when creating an instance."
+      status:
+        type: "string"
+        description: "The status of the alert."
+        enum:
+          - "open"
+          - "closed"
+          - "shelved"
+          - "read"
+          - "acknowledged"
+          - "dismissed"
+      tags:
+        type: "array"
+        description: "A list of tags that were applied to the alert."
+        items:
+          $ref: "#/definitions/Tag"
+  Tag:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "A unique ID to identify the tag."
+      key:
+        type: "string"
+        description: "The key of the tag."
+      value:
+        type: "string"
+        description: "The value of the tag."
+externalDocs:
+  description: "Find out more about the AlertMe project"
+  url: "https://alertme.waldemarenns.de"
