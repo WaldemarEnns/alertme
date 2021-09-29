@@ -157,6 +157,47 @@ definitions:
           - "read"
           - "acknowledged"
           - "dismissed"
+      severity:
+        type: "string"
+        description: "The severity of the alert."
+        enum:
+          - "critical"
+          - "major"
+          - "warning"
+          - "normal"
+          - "debug"
+          - "info"
+      resource:
+        type: "string"
+        description: "The resource that alerts are being received for."
+      event:
+        type: "string"
+        description: "The name of the event, which has triggered the alert."
+      service:
+        type: "array"
+        description: "All affected services."
+        items:
+          type: "string"
+      value:
+        type: "string"
+        description: "The latest value that triggered the alert."
+      origin:
+        type: "string"
+        description: "Monitoring component that triggered the alert."
+      shelvedUntil:
+        type: "string"
+        description: "The timestamp until which the alert is shelved - no further alerts of the same type will be triggered until the timestamp is passed."
+      createdAt:
+        type: "string"
+        description: "The timestamp at which the first alert of this type was created."
+      updatedAt:
+        type: "string"
+        description: "The latest timestamp at which the alert was updated."
+      history:
+        type: "array"
+        description: "The history of the alert. A list of alerts that are like the current alert instance but have changed over time. These are the historical entries."
+        items:
+          $ref: "#/definitions/Alert"
       tags:
         type: "array"
         description: "A list of tags that were applied to the alert."
